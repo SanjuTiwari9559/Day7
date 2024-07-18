@@ -1,0 +1,185 @@
+--------------------------------------------------------------------                   
+                        Querry Practice
+-----------------------------------------------------------------------
+CREATE DATABASE Online_Bookstore1;
+use Online_Bookstore1;
+--CREATE TABLE Authors (
+--AuthorID INT PRIMARY KEY ,
+--FirstName varchar(50),
+--LastName varchar(50),
+--BirthDate DateTime,
+--Country varchar(50)
+--)
+--CREATE Boook Table
+CREATE TABLE Book (
+ID INT PRIMARY KEY,
+Tittle varchar(100),
+AuthorID INT ,
+Price  Decimal(10,2),
+PublishDate Date ,
+Page int ,
+FOREIGN KEY (AuthorID) REFERENCES
+Authors(AuthorId)
+)
+--DROP Table  Book;
+--Create Orders Table 
+CREATE TABLE Orders(
+OrderID int  PRIMARY KEY,
+BookID int ,
+OrderDate  Date ,
+Quantity int ,
+TotalPrice Decimal(10,2),
+FOREIGN KEY(BookID) REFERENCES
+Book(ID)
+)
+SELECT * FROM Book;
+SELECT * FROM Authors;
+SELECT * FROM Orders;
+
+INSERT INTO Authors (AuthorID,FirstName,LastName,BirthDate,Country)
+values(1, 'J.K.', 'Rowling', '1965-07-31', 'United Kingdom'),
+(2, 'George', 'Orwell', '1903-06-25', 'India'),
+(3, 'Jane', 'Austen', '1775-12-16', 'United Kingdom');
+INSERT INTO Book 
+values(1, 'Harry Potter and the Philosopher', 1, 19.99, '1997-06-26', 223),
+(2, '1984', 2, 14.99, '1949-06-08', 328),
+(3, 'Pride and Prejudice', 3, 9.99, '1813-01-28', 279),
+(4, 'Harry Potter and the Chamber of Secrets', 1, 19.99, '1998-07-02', 251),
+(5, 'Animal Farm', 2, 9.99, '1945-08-17', 112);
+
+INSERT INTO Orders values (1, 1, '2023-01-15', 3, 59.97),
+(2, 2, '2023-02-20', 2, 29.98),
+(3, 3, '2023-03-05', 5, 49.95),
+(4, 4, '2023-04-10', 1, 19.99),
+(5, 1, '2023-05-12', 2, 39.98),
+(6, 5, '2023-06-15', 4, 39.96),
+(7, 2, '2023-07-20', 3, 44.97),
+(8, 3, '2023-08-25', 1, 9.99),
+(9, 4, '2023-09-30', 2, 39.98),
+(10, 5, '2023-10-15', 3, 29.97);
+
+
+ 
+
+----List all books along with their authors' names and the total number of orders for each book.
+--SELECT b.Tittle ,
+--a.FirstName + ' ' + a.LastName AS AuthorName, 
+--    COUNT(o.OrderID) AS TotalOrders
+--from Book b 
+--join Authors a
+--on b.ID=a.AuthorID
+--LEFT JOIN 
+--Orders o on 
+-- o.BookID=B.ID
+--GROUP BY Tittle ,FirstName,LastName
+--------------------------------------------------------------------------------------------------------------------
+                      --Find the total sales amount for each author.
+--------------------------------------------------------------------------------------------------------------------
+--SELECT  a.FirstName +'' +a.LastName  as AuthorName, 
+--sum(o.TotalPrice)
+--from Authors a 
+--JOIN 
+-- Book b on a.AuthorID=b.ID
+-- LEFT JOIN 
+-- Orders o
+-- on o.BookID=b.ID
+-- Group By 
+-- a.FirstName ,a.LastName 
+------------------------------------------------------------------------------------------------------------------
+--List the top 5 books with the highest number of orders.
+--------------------------------------------------------------------------------------------------------------------
+SELECT Top 5 b.Tittle,
+count(o.OrderID) OrderCount
+FROM Book b
+LEFT JOIN 
+Orders o
+on o.BookID=b.ID
+Group By 
+Tittle
+Order By
+OrderCount
+------------------------------------------------------------------------------------------------------------------------
+         --Find the average price of books written by authors from a specific country, say 'USA'
+-----------------------------------------------------------------------------------------------------------------------
+
+--SELECT b.Tittle ,
+--AVG(o.TotalPrice)
+--from Book b
+--join 
+--Authors a on a.AuthorID=b.AuthorID 
+-- Join 
+--Orders o
+--on o.BookID=b.ID
+--Where a.Country='United Kingdom'
+--Group By 
+--Tittle 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+               Get the details of the book that has generated the highest total sales.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+SELECT 
+    b.Title, 
+    a.FirstName + ' ' + a.LastName AS AuthorName, 
+    SUM(o.TotalPrice) AS TotalSales
+FROM 
+    Books b
+JOIN 
+    Authors a ON b.AuthorID = a.AuthorID
+JOIN 
+    Orders o ON b.BookID = o.BookID
+GROUP BY 
+    b.Title, a.FirstName, a.LastName
+ORDER BY 
+    TotalSales DESC
+LIMIT 1;
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+                      Find authors who have written more than 5 books.
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+SELECT 
+    a.FirstName + ' ' + a.LastName AS AuthorName, 
+    COUNT(b.BookID) AS BookCount
+FROM 
+    Authors a
+JOIN 
+    Books b ON a.AuthorID = b.AuthorID
+GROUP BY 
+    a.FirstName, a.LastName
+HAVING 
+    COUNT(b.BookID) > 5;
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+           List all orders along with the book title and author name, sorted by order date.
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+SELECT 
+    o.OrderID, 
+    b.Title, 
+    a.FirstName + ' ' + a.LastName AS AuthorName, 
+    o.OrderDate, 
+    o.Quantity, 
+    o.TotalPrice
+FROM 
+    Orders o
+JOIN 
+    Books b ON o.BookID = b.BookID
+JOIN 
+    Authors a ON b.AuthorID = a.AuthorID
+ORDER BY 
+    o.OrderDate;
+------------------------------------------------------------------------------------------------------------------------------------------------------
+                     Find the total number of books sold in the last month.
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+SELECT 
+    SUM(o.Quantity) AS TotalBooksSold
+FROM 
+    Orders o
+WHERE 
+    o.OrderDate >= DATEADD(month, -1, GETDATE());
